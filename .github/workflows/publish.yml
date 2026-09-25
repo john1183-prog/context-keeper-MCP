@@ -1,0 +1,33 @@
+name: Publish to PyPI
+
+# Runs when you push a version tag, e.g.: git tag v0.3.0 && git push --tags
+# Requires a repo secret named PYPI_API_TOKEN (an API token from
+# https://pypi.org/manage/account/token/), added under
+# Settings -> Secrets and variables -> Actions. This workflow does nothing
+# and publishes nothing until that secret exists.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: python -m pip install --upgrade build twine
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: pypi-AgEIcHlwaS5vcmcCJGExYTM2ZjllLWMzOTYtNDViNi1iZmEwLTUwMDZiY2YxZTYxYgACKlszLCIwOTg4ZjJkYy0wNmFjLTQyYmMtODYxNS1mZGM0OGNkMjk3NDYiXQAABiDp8-BchHgr8KXOwZN5gsa5-Bb6wprczSdP9AhiFGPo9A
+        run: twine upload dist/*
